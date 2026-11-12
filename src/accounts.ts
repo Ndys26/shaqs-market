@@ -1,5 +1,6 @@
 import type { Session } from './types';
 import { STALLS } from './mockData';
+import { tr } from './i18n';
 
 /**
  * Accounts and sign-in.
@@ -43,7 +44,7 @@ const BUILT_IN: Account[] = [
   { username: 'ladang', email: `ladang@${DOMAIN}`, passwordHash: '276588efbeca7a90b92cb49143f68a50874b36952fd90331e9a0de4cdb4f9867', session: { role: 'farm', name: 'Ladang Akuaponik Telaga Batin', method: 'password', stallId: 4 } },
   ...STALLS.map((s, i) => {
     const n = String(s.id).padStart(2, '0');
-    return { username: `gerai${n}`, email: `gerai${n}@${DOMAIN}`, passwordHash: STALL_HASHES[i], session: { role: 'cafe' as const, name: `${s.owner} · Gerai #${s.id}`, method: 'password' as const, stallId: s.id } };
+    return { username: `gerai${n}`, email: `gerai${n}@${DOMAIN}`, passwordHash: STALL_HASHES[i], session: { role: 'cafe' as const, name: s.owner, method: 'password' as const, stallId: s.id } };
   }),
 ];
 
@@ -67,17 +68,17 @@ export async function signIn(id: string, password: string): Promise<Session | nu
 
 export async function registerStall(f: { stallId: number; name: string; email: string; password: string }): Promise<Session> {
   const email = f.email.trim().toLowerCase();
-  if (!f.name.trim()) throw new Error('Enter the owner name.');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid email.');
-  if (f.password.length < 8) throw new Error('Password needs at least 8 characters.');
-  if (!STALLS.some((s) => s.id === f.stallId)) throw new Error('Choose a stall.');
-  if (allAccounts().some((a) => a.email === email || a.username === email)) throw new Error('That email already has an account.');
-  const session: Session = { role: 'cafe', name: `${f.name.trim()} · Gerai #${f.stallId}`, method: 'register', stallId: f.stallId };
+  if (!f.name.trim()) throw new Error(tr('err.name'));
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(tr('err.email'));
+  if (f.password.length < 8) throw new Error(tr('err.pwLen'));
+  if (!STALLS.some((s) => s.id === f.stallId)) throw new Error(tr('err.stall'));
+  if (allAccounts().some((a) => a.email === email || a.username === email)) throw new Error(tr('err.taken'));
+  const session: Session = { role: 'cafe', name: f.name.trim(), method: 'register', stallId: f.stallId };
   const acc: Account = { username: email, email, passwordHash: await hashPassword(f.password), session };
   try {
     localStorage.setItem(REG_KEY, JSON.stringify([...registered(), acc]));
   } catch {
-    throw new Error('This browser blocks saving. Turn off private mode and try again.');
+    throw new Error(tr('err.storage'));
   }
   return session;
 }

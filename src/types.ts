@@ -1,3 +1,8 @@
+import type { Key, Vars } from './i18n';
+
+/** One line of the price explanation, as an i18n key. */
+export interface Reason { k: Key; v?: Vars }
+
 export type Product = 'tilapia' | 'pekasam' | 'sayur';
 
 /** How often a stall buys from the farm: core = most days, occasional = some weeks, rare = almost never (drinks, pastry). */
@@ -55,7 +60,7 @@ export interface PriceBreakdown {
   logistics: number;
   surgeMultiplier: number;
   total: number;
-  reasons: string[];
+  reasons: Reason[];
 }
 
 export interface Order {
@@ -79,7 +84,11 @@ export type Persona = 'dashboard' | 'farm' | 'vendor';
 export interface AuditEvent {
   id: string;
   at: string;
+  /** Name, or an "@" i18n key such as "@ev.system". */
   actor: string;
+  /** i18n key and values, so the log shows in the reader's language. */
+  k?: Key;
+  v?: Vars;
   action: string;
 }
 

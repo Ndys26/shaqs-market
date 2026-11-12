@@ -1,4 +1,4 @@
-import type { DeliveryMode, OrderLine, PriceBreakdown, ProcessingRequest } from './types';
+import type { DeliveryMode, OrderLine, PriceBreakdown, ProcessingRequest, Reason } from './types';
 
 /** Pekasam and vegetables get no fish processing. */
 export const NO_PREP: ProcessingRequest = { descale: false, cut: 'whole', pack: 'none', coldChain: false };
@@ -37,31 +37,31 @@ export interface SurgeContext {
  * Rule-based dynamic pricing for same-day rush orders.
  * Every factor is shown to the buyer, so every price can be explained.
  */
-export function surge(ctx: SurgeContext): { multiplier: number; reasons: string[] } {
-  const reasons = ['Priority rider + same-day harvest slot: +8%'];
+export function surge(ctx: SurgeContext): { multiplier: number; reasons: Reason[] } {
+  const reasons: Reason[] = [{ k: 'r.base' }];
   let m = 1.08;
   const s = Math.min(0.1, Math.max(0, ctx.scarcity) * 0.1);
   if (s >= 0.01) {
     m += s;
-    reasons.push(`${Math.round(ctx.scarcity * 100)}% of harvest already allocated: +${Math.round(s * 100)}%`);
+    reasons.push({ k: 'r.scarce', v: { pct: Math.round(ctx.scarcity * 100), add: Math.round(s * 100) } });
   }
   const r = Math.min(0.06, ctx.activeUrgent * 0.02);
   if (r > 0) {
     m += r;
-    reasons.push(`${ctx.activeUrgent} rush order(s) already queued for riders: +${Math.round(r * 100)}%`);
+    reasons.push({ k: 'r.queue', v: { n: ctx.activeUrgent, add: Math.round(r * 100) } });
   }
   if (ctx.hour >= 9 && ctx.hour < 12) {
     m += 0.04;
-    reasons.push('Lunch-prep window (09:00–12:00): +4%');
+    reasons.push({ k: 'r.lunch' });
   }
   const multiplier = Math.min(MAX_SURGE, round2(m));
-  if (multiplier === MAX_SURGE) reasons.push(`Capped at +${Math.round((MAX_SURGE - 1) * 100)}% (price-protection rule)`);
+  if (multiplier === MAX_SURGE) reasons.push({ k: 'r.cap', v: { n: Math.round((MAX_SURGE - 1) * 100) } });
   return { multiplier, reasons };
 }
 
 export function quote(lines: OrderLine[], mode: DeliveryMode, ctx: SurgeContext): PriceBreakdown {
   const { multiplier, reasons } =
-    mode === 'urgent' ? surge(ctx) : { multiplier: 1, reasons: ['Scheduled harvest run: standard wholesale rate'] };
+    mode === 'urgent' ? surge(ctx) : { multiplier: 1, reasons: [{ k: 'r.standard' }] as Reason[] };
   const fish = round2(lines.reduce((t, l) => t + l.kg * l.pricePerKg * multiplier, 0));
   const prep = round2(
     lines.reduce((t, l) => t + prepCost(l), 0) + (lines.some((l) => l.prep.coldChain) ? PREP_FEES.coldChainFlat : 0),

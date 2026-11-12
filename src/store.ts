@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 import type { AuditEvent, DeliveryMode, FishBatch, Order, OrderLine, Product, Stage } from './types';
 import { generateHistory, PRODUCTS, seedBatches, stallById } from './mockData';
 import { NO_PREP, quote, type SurgeContext } from './pricing';
+import { tr, type Key, type Vars } from './i18n';
 
 /**
  * Shared live state, persisted in localStorage.
@@ -16,7 +17,7 @@ export interface LiveState {
   events: AuditEvent[];
 }
 
-const KEY = 'shaqs-market:v2'; // v2: SHAQs products (tilapia, pekasam, sayur)
+const KEY = 'shaqs-market:v3'; // v3: bilingual events and price reasons
 const uid = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 
 function fresh(): LiveState {
@@ -26,7 +27,7 @@ function fresh(): LiveState {
     anchor: now.toISOString(),
     batches: seedBatches(now),
     orders: [],
-    events: [{ id: uid(), at: now.toISOString(), actor: 'System', action: "Today's harvest loaded: fresh tilapia, pekasam and aquaponic vegetables" }],
+    events: [event('@ev.system', 'ev.loaded')],
   };
 }
 
@@ -85,17 +86,19 @@ export function surgeContext(s: LiveState, product: Product[] = []): SurgeContex
   };
 }
 
-const event = (actor: string, action: string): AuditEvent => ({ id: uid(), at: new Date().toISOString(), actor, action });
+function event(actor: string, k: Key, v?: Vars): AuditEvent {
+  return { id: uid(), at: new Date().toISOString(), actor, k, v, action: tr(k, v) };
+}
 
 export function placeOrder(stallId: number, lines: OrderLine[], mode: DeliveryMode, deliverBy: Date): Order {
-  if (!lines.length) throw new Error('Cart is empty');
-  if (lines.some((l) => !Number.isFinite(l.kg) || l.kg <= 0)) throw new Error('Invalid quantity');
+  if (!lines.length) throw new Error(tr('err.cartEmpty'));
+  if (lines.some((l) => !Number.isFinite(l.kg) || l.kg <= 0)) throw new Error(tr('err.qty'));
   const need = new Map<string, number>();
   lines.forEach((l) => need.set(l.batchId, (need.get(l.batchId) ?? 0) + l.kg));
   for (const [id, kg] of need) {
     const b = state.batches.find((x) => x.id === id);
-    if (!b) throw new Error('A batch in your cart is no longer available');
-    if (kg > remaining(b)) throw new Error(`Only ${remaining(b)} kg left of ${b.id}`);
+    if (!b) throw new Error(tr('err.batchGone'));
+    if (kg > remaining(b)) throw new Error(tr('err.notEnough', { kg: remaining(b), id: b.id }));
   }
   // Charge the farm's current rate, and take product and processing from the batch, not from the cart.
   lines = lines.map((l) => {
@@ -119,49 +122,45 @@ export function placeOrder(stallId: number, lines: OrderLine[], mode: DeliveryMo
     ...state,
     batches: state.batches.map((b) => (need.has(b.id) ? { ...b, allocatedKg: b.allocatedKg + need.get(b.id)! } : b)),
     orders: [order, ...state.orders],
-    events: [event(stallById(stallId).name, `${mode === 'urgent' ? 'URGENT ' : ''}order ${order.id}: ${kg} kg, RM ${order.price.total.toFixed(2)}`), ...state.events],
+    events: [event(stallById(stallId).name, mode === 'urgent' ? 'ev.orderUrgent' : 'ev.order', { id: order.id, kg, total: `RM ${order.price.total.toFixed(2)}` }), ...state.events],
   });
   return order;
 }
 
 export const STAGES: Stage[] = ['harvesting', 'processing', 'transit', 'delivered'];
-export const STAGE_LABEL: Record<Stage, string> = {
-  harvesting: 'Harvesting',
-  processing: 'Scaling & Gutting',
-  transit: 'Cold-Chain Transit',
-  delivered: 'Delivered',
-};
+export const stageLabel = (s: Stage) => tr(`stage.${s}` as Key);
 
 export function advanceOrder(id: string) {
   const now = new Date();
-  let msg = '';
+  let ev: AuditEvent | null = null;
   const orders = state.orders.map((o) => {
     if (o.id !== id || o.stage === 'delivered') return o;
     const stage = STAGES[STAGES.indexOf(o.stage) + 1];
-    msg = `${o.id} moved to ${STAGE_LABEL[stage]}`;
     const next: Order = { ...o, stage, stageAt: { ...o.stageAt, [stage]: now.toISOString() } };
     if (stage === 'delivered') {
       next.onTime = now <= new Date(o.deliverBy);
       next.turnaroundMin = Math.round((now.getTime() - new Date(o.stageAt.harvesting ?? o.createdAt).getTime()) / 60000);
-      msg += next.onTime ? ' (on time)' : ' (LATE)';
+      ev = event('@persona.farm.full', next.onTime ? 'ev.delivered' : 'ev.deliveredLate', { id: o.id });
+    } else {
+      ev = event('@persona.farm.full', 'ev.stage', { id: o.id, stage: `@stage.${stage}` });
     }
     return next;
   });
-  if (msg) commit({ ...state, orders, events: [event('Farm & Harvest', msg), ...state.events] });
+  if (ev) commit({ ...state, orders, events: [ev, ...state.events] });
 }
 
 export function addBatch(b: Omit<FishBatch, 'id' | 'allocatedKg' | 'harvestedAt'>) {
-  if (!(b.harvestedKg > 0) || !(b.basePrice > 0)) throw new Error('Weight and price must be above zero');
+  if (!(b.harvestedKg > 0) || !(b.basePrice > 0)) throw new Error(tr('err.addBatch'));
   const now = new Date();
   const batch: FishBatch = { ...b, id: `B-${now.toISOString().slice(2, 10).replace(/-/g, '')}-${uid().slice(0, 3)}`, allocatedKg: 0, harvestedAt: now.toISOString() };
-  commit({ ...state, batches: [batch, ...state.batches], events: [event('Farm & Harvest', `New harvest ${batch.id}: ${b.harvestedKg} kg ${b.product} @ RM ${b.basePrice.toFixed(2)}/kg`), ...state.events] });
+  commit({ ...state, batches: [batch, ...state.batches], events: [event('@persona.farm.full', 'ev.harvest', { id: batch.id, kg: b.harvestedKg, product: `@prod.${b.product}`, p: b.basePrice.toFixed(2) }), ...state.events] });
 }
 
 export function setBasePrice(id: string, price: number) {
   if (!(price > 0)) return;
   const b = state.batches.find((x) => x.id === id);
   if (!b || b.basePrice === price) return;
-  commit({ ...state, batches: state.batches.map((x) => (x.id === id ? { ...x, basePrice: price } : x)), events: [event('Farm & Harvest', `Base rate ${id}: RM ${b.basePrice.toFixed(2)} → RM ${price.toFixed(2)}/kg`), ...state.events] });
+  commit({ ...state, batches: state.batches.map((x) => (x.id === id ? { ...x, basePrice: price } : x)), events: [event('@persona.farm.full', 'ev.rate', { id, a: b.basePrice.toFixed(2), b: price.toFixed(2) }), ...state.events] });
 }
 
 export function resetToday() {

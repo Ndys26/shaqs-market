@@ -42,6 +42,8 @@ To change a password, put the output of `hashPassword('new password')` (`src/acc
   Replace them with SHAQs' real selling prices in `PRODUCTS` (`src/mockData.ts`).
 - Logos in `public/` come from the SHAQs Laporan Fasa 3 report.
 
+
+
 ## Limits
 
 - Live sync is same-browser only. Two separate devices do not share new orders.

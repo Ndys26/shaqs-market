@@ -13,14 +13,14 @@ export const PRODUCTS: Record<Product, { label: string; local: string; color: st
 export const STALLS: Stall[] = [
   { id: 1, name: 'Nasi Melayu Mak Teh', cuisine: 'Nasi Melayu', owner: 'Puan Rohani', license: 'PBT-KF-0101', tier: 'core', prefers: ['tilapia', 'pekasam', 'sayur'] },
   { id: 2, name: 'Nasi Campur Selera Kita', cuisine: 'Nasi Campur', owner: 'Encik Faizal', license: 'PBT-KF-0102', tier: 'core', prefers: ['tilapia', 'sayur'] },
-  { id: 3, name: 'Mee & Kuey Teow Abang Li', cuisine: 'Noodles', owner: 'Encik Ali', license: 'PBT-KF-0103', tier: 'occasional', prefers: ['sayur'] },
-  { id: 4, name: 'Asam Pedas & Ikan Bakar Kak Yah', cuisine: 'Asam Pedas Specialist', owner: 'Puan Zakiah', license: 'PBT-KF-0104', tier: 'core', prefers: ['tilapia', 'pekasam'] },
-  { id: 5, name: 'Roti Canai Bistro', cuisine: 'Roti & Kopi', owner: 'Encik Rajesh', license: 'PBT-KF-0105', tier: 'rare', prefers: ['tilapia'] },
-  { id: 6, name: 'Nasi Ayam Hainan', cuisine: 'Chicken Rice', owner: 'Encik Wong', license: 'PBT-KF-0106', tier: 'occasional', prefers: ['sayur'] },
+  { id: 3, name: 'Mee & Kuey Teow Abang Li', cuisine: 'Mi & Kuey Teow', owner: 'Encik Ali', license: 'PBT-KF-0103', tier: 'occasional', prefers: ['sayur'] },
+  { id: 4, name: 'Asam Pedas & Ikan Bakar Kak Yah', cuisine: 'Asam Pedas & Ikan Bakar', owner: 'Puan Zakiah', license: 'PBT-KF-0104', tier: 'core', prefers: ['tilapia', 'pekasam'] },
+  { id: 5, name: 'Roti Canai Bistro', cuisine: 'Roti Canai & Kopi', owner: 'Encik Rajesh', license: 'PBT-KF-0105', tier: 'rare', prefers: ['tilapia'] },
+  { id: 6, name: 'Nasi Ayam Hainan', cuisine: 'Nasi Ayam', owner: 'Encik Wong', license: 'PBT-KF-0106', tier: 'occasional', prefers: ['sayur'] },
   { id: 7, name: 'Sup & Tomyam Pak Su', cuisine: 'Sup & Tomyam', owner: 'Encik Sulaiman', license: 'PBT-KF-0107', tier: 'core', prefers: ['tilapia', 'sayur'] },
-  { id: 8, name: 'Dapur Thai Selatan', cuisine: 'Thai', owner: 'Puan Nok', license: 'PBT-KF-0108', tier: 'occasional', prefers: ['tilapia', 'sayur'] },
-  { id: 9, name: 'Jus & Minuman Segar', cuisine: 'Drinks', owner: 'Cik Aina', license: 'PBT-KF-0109', tier: 'rare', prefers: [] },
-  { id: 10, name: 'Kuih & Pastri Nenek', cuisine: 'Kuih & Pastry', owner: 'Puan Habsah', license: 'PBT-KF-0110', tier: 'rare', prefers: [] },
+  { id: 8, name: 'Dapur Thai Selatan', cuisine: 'Masakan Thai', owner: 'Puan Nok', license: 'PBT-KF-0108', tier: 'occasional', prefers: ['tilapia', 'sayur'] },
+  { id: 9, name: 'Jus & Minuman Segar', cuisine: 'Minuman & Jus', owner: 'Cik Aina', license: 'PBT-KF-0109', tier: 'rare', prefers: [] },
+  { id: 10, name: 'Kuih & Pastri Nenek', cuisine: 'Kuih & Pastri', owner: 'Puan Habsah', license: 'PBT-KF-0110', tier: 'rare', prefers: [] },
   { id: 11, name: 'Western Seafood Corner', cuisine: 'Fish & Chips', owner: 'Encik Daniel', license: 'PBT-KF-0111', tier: 'core', prefers: ['tilapia'] },
 ];
 
@@ -112,8 +112,8 @@ export function seedBatches(today: Date): FishBatch[] {
   const iso = at(today, 6, 30).toISOString();
   const tag = today.toISOString().slice(2, 10).replace(/-/g, '');
   return [
-    { id: `B-${tag}-TL`, product: 'tilapia', grade: 'Live harvest · 400–600g/fish', note: 'Aquaponic tank, purged 24h before harvest', pond: 'Akuaponik Telaga Batin', harvestedKg: 60, allocatedKg: 24, basePrice: 13.5, harvestedAt: iso },
-    { id: `B-${tag}-PK`, product: 'pekasam', grade: 'Tilapia pekasam · 1 kg packs', note: 'Community-made, fermented with rice, salt & asam keping', pond: 'Dapur pekasam komuniti', harvestedKg: 25, allocatedKg: 8, basePrice: 30, harvestedAt: iso },
-    { id: `B-${tag}-SY`, product: 'sayur', grade: 'Mixed salad & sawi · cut this morning', note: 'Grown on fish-tank water, no chemical fertiliser', pond: 'Rak tanaman akuaponik', harvestedKg: 30, allocatedKg: 10, basePrice: 10, harvestedAt: iso },
+    { id: `B-${tag}-TL`, product: 'tilapia', grade: '@seed.tl.grade', note: '@seed.tl.note', pond: '@seed.tl.src', harvestedKg: 60, allocatedKg: 24, basePrice: 13.5, harvestedAt: iso },
+    { id: `B-${tag}-PK`, product: 'pekasam', grade: '@seed.pk.grade', note: '@seed.pk.note', pond: '@seed.pk.src', harvestedKg: 25, allocatedKg: 8, basePrice: 30, harvestedAt: iso },
+    { id: `B-${tag}-SY`, product: 'sayur', grade: '@seed.sy.grade', note: '@seed.sy.note', pond: '@seed.sy.src', harvestedKg: 30, allocatedKg: 10, basePrice: 10, harvestedAt: iso },
   ];
 }

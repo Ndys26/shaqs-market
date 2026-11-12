@@ -31,3 +31,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* Slow water wave in the dashboard hero. */
+@keyframes wave { to { transform: translateX(-50%); } }
+.wave { animation: wave 14s linear infinite; }

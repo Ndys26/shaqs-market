@@ -1,0 +1,14 @@
+{
+  "name": "SHAQs Market",
+  "short_name": "SHAQs",
+  "description": "Fresh tilapia, pekasam and aquaponic vegetables from Telaga Batin to the cafeteria.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f8f4",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

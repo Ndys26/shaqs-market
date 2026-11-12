@@ -1,30 +1,44 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, animate, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useState, type ReactNode } from 'react';
 import { CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Order, Stage } from '../types';
-import { STAGES, STAGE_LABEL } from '../store';
+import { STAGES, stageLabel } from '../store';
+import { locale, setLang, tr, useLang, type Lang } from '../i18n';
 
 export const rm = (n: number) => `RM ${n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 export const rm0 = (n: number) => `RM ${Math.round(n).toLocaleString('en-MY')}`;
 export const kg = (n: number) => `${n.toLocaleString('en-MY', { maximumFractionDigits: 1 })} kg`;
-export const time = (iso: string) => new Date(iso).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' });
-export const date = (iso: string) => new Date(iso).toLocaleDateString('en-MY', { day: 'numeric', month: 'short' });
+export const time = (iso: string) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+export const date = (iso: string) => new Date(iso).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
 export const orderKg = (o: Order) => o.lines.reduce((t, l) => t + l.kg, 0);
 export const cx = (...c: (string | false | undefined | null)[]) => c.filter(Boolean).join(' ');
 
-export function Card({ children, className }: { children: ReactNode; className?: string }) {
+/** White card that rises in softly; `i` staggers cards in a list. */
+export function Card({ children, className, i = 0 }: { children: ReactNode; className?: string; i?: number }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className={cx('glass rounded-2xl p-4 md:p-5', className)}>
+    <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: Math.min(i, 8) * 0.06, ease: [0.22, 1, 0.36, 1] }} className={cx('glass rounded-2xl p-4 md:p-5', className)}>
       {children}
     </motion.div>
   );
 }
 
-export function Stat({ label, value, sub, icon: Icon, tone = 'blue' }: { label: string; value: string; sub?: string; icon: LucideIcon; tone?: 'blue' | 'green' | 'amber' }) {
-  const toneCls = { blue: 'text-sky-700 bg-electric/20', green: 'text-emerald-700 bg-fresh/15', amber: 'text-amber-700 bg-amber-400/15' }[tone];
+/** Number that counts up from zero once, for a soft "wow" on first view. */
+export function CountUp({ value, format }: { value: number; format: (n: number) => string }) {
+  const reduce = useReducedMotion();
+  const [n, setN] = useState(reduce ? value : 0);
+  useEffect(() => {
+    if (reduce) return setN(value);
+    const c = animate(0, value, { duration: 1.4, ease: [0.22, 1, 0.36, 1], onUpdate: setN });
+    return () => c.stop();
+  }, [value, reduce]);
+  return <>{format(n)}</>;
+}
+
+export function Stat({ label, value, sub, icon: Icon, tone = 'blue', i }: { label: string; value: ReactNode; sub?: string; icon: LucideIcon; tone?: 'blue' | 'green' | 'amber'; i?: number }) {
+  const toneCls = { blue: 'text-sky-700 bg-electric/15', green: 'text-emerald-700 bg-fresh/15', amber: 'text-amber-700 bg-amber-400/15' }[tone];
   return (
-    <Card>
+    <Card i={i}>
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wide text-slate-600">{label}</p>
         <span className={cx('rounded-lg p-1.5', toneCls)}><Icon size={16} aria-hidden /></span>
@@ -46,7 +60,7 @@ export function StageBadge({ stage }: { stage: Stage }) {
   return (
     <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold', stageColor[stage])}>
       {stage !== 'delivered' && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />}
-      {STAGE_LABEL[stage]}
+      {stageLabel(stage)}
     </span>
   );
 }
@@ -54,13 +68,13 @@ export function StageBadge({ stage }: { stage: Stage }) {
 export function StageTrack({ order }: { order: Order }) {
   const idx = STAGES.indexOf(order.stage);
   return (
-    <ol className="grid grid-cols-4 gap-1" aria-label={`Status: ${STAGE_LABEL[order.stage]}`}>
+    <ol className="grid grid-cols-4 gap-1" aria-label={stageLabel(order.stage)}>
       {STAGES.map((s, i) => (
         <li key={s} className="min-w-0">
           <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
             <motion.div className={cx('h-full', i <= idx ? 'bg-gradient-to-r from-electric to-fresh' : '')} initial={{ width: 0 }} animate={{ width: i <= idx ? '100%' : '0%' }} transition={{ duration: 0.6, delay: i * 0.1 }} />
           </div>
-          <p className={cx('mt-1 truncate text-[10px] md:text-xs', i <= idx ? 'text-slate-700' : 'text-slate-500')}>{STAGE_LABEL[s]}</p>
+          <p className={cx('mt-1 truncate text-[10px] md:text-xs', i <= idx ? 'text-slate-700' : 'text-slate-500')}>{stageLabel(s)}</p>
           {order.stageAt[s] && <p className="tabular text-[10px] text-slate-500">{time(order.stageAt[s]!)}</p>}
         </li>
       ))}
@@ -91,7 +105,7 @@ export interface TabDef { id: string; label: string; icon: LucideIcon }
 export function Tabs({ tabs, active, onChange }: { tabs: TabDef[]; active: string; onChange: (id: string) => void }) {
   return (
     <>
-      <nav className="mb-5 hidden gap-1 rounded-2xl glass p-1 md:inline-flex" aria-label="Sections">
+      <nav className="mb-5 hidden gap-1 rounded-2xl glass p-1 md:inline-flex" aria-label={tr('a11y.sections')}>
         {tabs.map((t) => (
           <button key={t.id} onClick={() => onChange(t.id)} aria-current={active === t.id ? 'page' : undefined}
             className={cx('relative flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium', active === t.id ? 'text-ink' : 'text-slate-600 hover:text-slate-900')}>
@@ -100,7 +114,7 @@ export function Tabs({ tabs, active, onChange }: { tabs: TabDef[]; active: strin
           </button>
         ))}
       </nav>
-      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden" aria-label="Sections">
+      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden" aria-label={tr('a11y.sections')}>
         <div className="flex">
           {tabs.map((t) => (
             <button key={t.id} onClick={() => onChange(t.id)} aria-current={active === t.id ? 'page' : undefined}
@@ -147,6 +161,18 @@ export function Toaster() {
   );
 }
 
-export function Skeleton({ className }: { className?: string }) {
-  return <div className={cx('animate-pulse rounded-xl bg-slate-200', className)} />;
+/** Small EN / BM switch. */
+export function LangToggle({ className }: { className?: string }) {
+  const lang = useLang();
+  return (
+    <div className={cx('flex rounded-full border border-slate-200 bg-white p-0.5 text-[11px] font-bold', className)} role="radiogroup" aria-label={tr('lang.label')}>
+      {(['en', 'ms'] as Lang[]).map((l) => (
+        <button key={l} role="radio" aria-checked={lang === l} onClick={() => setLang(l)}
+          className={cx('relative min-h-7 min-w-9 rounded-full px-2', lang === l ? 'text-white' : 'text-slate-600')}>
+          {lang === l && <motion.span layoutId="lang-pill" className="absolute inset-0 rounded-full bg-ink" transition={{ type: 'spring', duration: 0.35 }} />}
+          <span className="relative">{l === 'en' ? 'EN' : 'BM'}</span>
+        </button>
+      ))}
+    </div>
+  );
 }
