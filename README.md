@@ -42,7 +42,10 @@ To change a password, put the output of `hashPassword('new password')` (`src/acc
   Replace them with SHAQs' real selling prices in `PRODUCTS` (`src/mockData.ts`).
 - Logos in `public/` come from the SHAQs Laporan Fasa 3 report.
 
+## Language
 
+English and Bahasa Melayu (Malaysia), switched with the EN / BM toggle. All text lives in `src/i18n.ts`.
+The site has a web app manifest, so phones can add it to the home screen.
 
 ## Limits
 
