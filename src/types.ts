@@ -90,7 +90,7 @@ export interface Session {
   role: Role;
   name: string;
   email?: string;
-  method: 'password' | 'google' | 'register' | 'demo';
+  method: 'password' | 'register';
   /** Stall the session orders for. Admin uses it to preview the cafe screen. */
   stallId: number;
 }

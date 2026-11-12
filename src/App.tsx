@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, ChefHat, Fish, LogOut, RotateCcw, Tractor, Volume2, VolumeX } from 'lucide-react';
 import type { Persona, Role, Session } from './types';
-import { onRemoteChange, resetDemo, STAGE_LABEL } from './store';
+import { onRemoteChange, resetToday, STAGE_LABEL } from './store';
 import { audio, setSoundEnabled } from './audioService';
 import { STALLS, stallById } from './mockData';
 import { AuthScreen } from './components/Auth';
@@ -95,14 +95,14 @@ export default function App() {
             <button onClick={() => setUi({ ...ui, sound: !ui.sound })} className="grid h-9 w-9 place-items-center rounded-lg text-slate-700 hover:bg-slate-100" aria-label={ui.sound ? 'Mute sounds' : 'Unmute sounds'} aria-pressed={ui.sound}>
               {ui.sound ? <Volume2 size={18} /> : <VolumeX size={18} />}
             </button>
-            {session.role === 'admin' && <button onClick={() => { if (confirm('Reset live demo data? Seeded 60-day history is kept.')) { resetDemo(); toast('Demo reset', 'info'); } }} className="hidden h-9 w-9 place-items-center rounded-lg text-slate-700 hover:bg-slate-100 sm:grid" aria-label="Reset demo data"><RotateCcw size={18} /></button>}
+            {session.role === 'admin' && <button onClick={() => { if (confirm("Clear today's orders and restock today's harvest? The 60-day history is kept.")) { resetToday(); toast("Today's board cleared", 'info'); } }} className="hidden h-9 w-9 place-items-center rounded-lg text-slate-700 hover:bg-slate-100 sm:grid" aria-label="Clear today's orders"><RotateCcw size={18} /></button>}
             <button onClick={() => setUi({ ...ui, session: null })} className="grid h-9 w-9 place-items-center rounded-lg text-slate-700 hover:bg-slate-100" aria-label={`Sign out ${session.name}`}><LogOut size={18} /></button>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-5 md:py-8">
-        <p className="mb-3 text-xs text-slate-500">Signed in as {session.name}{session.method === 'demo' ? ' (demo)' : ''} · {ui.persona === 'vendor' ? `Stall #${session.stallId} ${stallById(session.stallId).name}` : PERSONAS.find((p) => p.id === ui.persona)!.label}</p>
+        <p className="mb-3 text-xs text-slate-500">Signed in as {session.name} · {ui.persona === 'vendor' ? `Stall #${session.stallId} ${stallById(session.stallId).name}` : PERSONAS.find((p) => p.id === ui.persona)!.label}</p>
         <motion.div key={ui.persona} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
           {ui.persona === 'vendor' && <VendorView stallId={session.stallId} />}
           {ui.persona === 'farm' && <FarmView />}

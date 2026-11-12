@@ -164,6 +164,6 @@ export function setBasePrice(id: string, price: number) {
   commit({ ...state, batches: state.batches.map((x) => (x.id === id ? { ...x, basePrice: price } : x)), events: [event('Farm & Harvest', `Base rate ${id}: RM ${b.basePrice.toFixed(2)} → RM ${price.toFixed(2)}/kg`), ...state.events] });
 }
 
-export function resetDemo() {
+export function resetToday() {
   commit(fresh());
 }

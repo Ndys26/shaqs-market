@@ -234,7 +234,7 @@ function CartPanel({ cart, setCart, mode, setMode, slot, setSlot, slots, q, urge
       <Button className="w-full" variant={mode === 'urgent' ? 'danger' : 'primary'} disabled={!cart.length} onClick={onCheckout}>
         {mode === 'urgent' ? <Zap size={16} aria-hidden /> : <ClipboardList size={16} aria-hidden />}Place {mode === 'urgent' ? 'rush ' : ''}order
       </Button>
-      <p className="text-center text-[11px] text-slate-500">Demo order: no payment is taken.</p>
+      <p className="text-center text-[11px] text-slate-500">No online payment. Settle with the farm on delivery.</p>
     </div>
   );
 }

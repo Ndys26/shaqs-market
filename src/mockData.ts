@@ -2,7 +2,7 @@ import type { FishBatch, Order, OrderLine, ProcessingRequest, Product, Stall } f
 import { quote } from './pricing';
 
 // SHAQs products (Laporan Fasa 3): fresh tilapia, tilapia pekasam, aquaponic vegetables.
-// shortcut: price bands are demo estimates, not from the report; replace with real selling prices.
+// shortcut: price bands are estimates, not from the report; replace with real selling prices.
 export const PRODUCTS: Record<Product, { label: string; local: string; color: string; range: [number, number]; fresh: boolean }> = {
   tilapia: { label: 'Fresh Red Tilapia', local: 'Tilapia Segar', color: '#d9467a', range: [12, 15], fresh: true },
   pekasam: { label: 'Tilapia Pekasam', local: 'Pekasam', color: '#c27c0e', range: [28, 34], fresh: false },
