@@ -1,4 +1,7 @@
-import type { DeliveryMode, OrderLine, PriceBreakdown } from './types';
+import type { DeliveryMode, OrderLine, PriceBreakdown, ProcessingRequest } from './types';
+
+/** Pekasam and vegetables get no fish processing. */
+export const NO_PREP: ProcessingRequest = { descale: false, cut: 'whole', pack: 'none', coldChain: false };
 
 export const PREP_FEES = {
   descalePerKg: 1.0,
@@ -70,7 +73,7 @@ export function quote(lines: OrderLine[], mode: DeliveryMode, ctx: SurgeContext)
 // Self-check of the money logic, dev only.
 if (import.meta.env.DEV) {
   const line: OrderLine = {
-    batchId: 'x', species: 'tilapia', kg: 20, pricePerKg: 13.5,
+    batchId: 'x', product: 'tilapia', kg: 20, pricePerKg: 13.5,
     prep: { descale: true, cut: 'whole', pack: '5kg', coldChain: true },
   };
   const std = quote([line], 'standard', { scarcity: 0, activeUrgent: 0, hour: 15 });

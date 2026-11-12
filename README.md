@@ -1,6 +1,7 @@
-# Sharks Market (static prototype)
+# SHAQs Market (static prototype)
 
-Farm-to-kitchen aquaculture ordering for an 11-stall government cafeteria pilot.
+Ordering app for SHAQs (Sustainable Husbandry Aquaponic System), Kuala Nerus, Terengganu.
+The Telaga Batin community farm sells fresh tilapia, tilapia pekasam and aquaponic vegetables to an 11-stall cafeteria.
 Runs fully in the browser. No server, no database, no payment.
 
 ## Run
@@ -24,7 +25,7 @@ npm run dev
 | --- | --- | --- | --- |
 | Cafe | `stall1` … `stall11` | `cafe123` | Ordering for that stall |
 | Farm | `farm` | `farm123` | Harvest log and order queue |
-| Admin (Sharks Market) | `admin` | `admin123` | Dashboard, Farm and Cafe screens |
+| Admin (SHAQs Market) | `admin` | `admin123` | Dashboard, Farm and Cafe screens |
 
 Each login screen also has **Quick demo login**. Cafe can also use simulated Google sign-in or register a stall.
 Each browser tab keeps its own login. Tabs in the same browser share live orders through `localStorage`.
@@ -32,8 +33,10 @@ Each browser tab keeps its own login. Tabs in the same browser share live orders
 ## Data
 
 - `src/mockData.ts` builds 60 days of history (weekdays only) from a fixed seed, so every device shows the same numbers.
-- About 1,200 kg over ~44 trading days (~27 kg/day), 8 of 11 stalls buy fish, ~95% on time.
-- Prices stay inside RM 12–15 (tilapia), RM 20–24 (siakap), RM 13–17 (patin) per kg.
+- About 1,000 kg over ~42 trading days (~24 kg/day), 9 of 11 stalls buy, ~96% on time.
+- Price bands are demo estimates: tilapia RM 12–15/kg, pekasam RM 28–34/kg, vegetables RM 8–12/kg.
+  Replace them with SHAQs' real selling prices in `PRODUCTS` (`src/mockData.ts`).
+- Logos in `public/` come from the SHAQs Laporan Fasa 3 report.
 
 ## Limits
 

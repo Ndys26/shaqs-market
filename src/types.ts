@@ -1,6 +1,6 @@
-export type Species = 'siakap' | 'tilapia' | 'patin';
+export type Product = 'tilapia' | 'pekasam' | 'sayur';
 
-/** How often a stall buys fish: core = most days, occasional = some weeks, rare = almost never (drinks, pastry). */
+/** How often a stall buys from the farm: core = most days, occasional = some weeks, rare = almost never (drinks, pastry). */
 export type StallTier = 'core' | 'occasional' | 'rare';
 
 export interface Stall {
@@ -10,12 +10,12 @@ export interface Stall {
   owner: string;
   license: string;
   tier: StallTier;
-  prefers: Species[];
+  prefers: Product[];
 }
 
 export interface FishBatch {
   id: string;
-  species: Species;
+  product: Product;
   grade: string;
   note: string;
   pond: string;
@@ -38,7 +38,7 @@ export interface ProcessingRequest {
 
 export interface OrderLine {
   batchId: string;
-  species: Species;
+  product: Product;
   kg: number;
   /** Base rate at time of order, before any urgent surge. */
   pricePerKg: number;
@@ -83,7 +83,7 @@ export interface AuditEvent {
   action: string;
 }
 
-/** cafe = one stall, farm = harvest & dispatch, admin = Sharks Market team (sees everything). */
+/** cafe = one stall, farm = harvest & dispatch, admin = SHAQs Market team (sees everything). */
 export type Role = 'cafe' | 'farm' | 'admin';
 
 export interface Session {

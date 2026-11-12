@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
+/* SHAQs report palette: navy headings, SHAQs leaf green, white pages. */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --color-ocean: #0b132b;
-  --color-ocean-2: #111c3d;
-  --color-ocean-3: #1c2a52;
-  --color-electric: #0077b6;
-  --color-fresh: #10b981;
+  --color-ink: #1d3260;
+  --color-ocean: #1d3260;
+  --color-electric: #0f6cad;
+  --color-fresh: #2f7d32;
+  --color-fresh-dark: #256528;
+  --color-leaf: #8cc63f;
 }
 
 html, body, #root { min-height: 100%; }
 body {
   margin: 0;
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(0, 119, 182, 0.25), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, rgba(16, 185, 129, 0.15), transparent 60%),
-    #0b132b;
-  color: #e2e8f0;
+    radial-gradient(1000px 500px at 0% -10%, rgba(140, 198, 63, 0.16), transparent 60%),
+    radial-gradient(800px 450px at 110% 0%, rgba(15, 108, 173, 0.08), transparent 60%),
+    #f6f8f4;
+  color: #1d3260;
   -webkit-tap-highlight-color: transparent;
 }
 .glass {
-  background: rgba(17, 28, 61, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.5);
+  background: #ffffff;
+  border: 1px solid #e2e8e0;
+  box-shadow: 0 1px 2px rgba(29, 50, 96, 0.05), 0 8px 24px -16px rgba(29, 50, 96, 0.25);
 }
 .tabular { font-variant-numeric: tabular-nums; }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }

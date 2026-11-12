@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
-import type { AuditEvent, DeliveryMode, FishBatch, Order, OrderLine, Species, Stage } from './types';
-import { generateHistory, seedBatches, stallById } from './mockData';
-import { quote, type SurgeContext } from './pricing';
+import type { AuditEvent, DeliveryMode, FishBatch, Order, OrderLine, Product, Stage } from './types';
+import { generateHistory, PRODUCTS, seedBatches, stallById } from './mockData';
+import { NO_PREP, quote, type SurgeContext } from './pricing';
 
 /**
  * Shared live state, persisted in localStorage.
@@ -16,7 +16,7 @@ export interface LiveState {
   events: AuditEvent[];
 }
 
-const KEY = 'sharks-market:v1';
+const KEY = 'shaqs-market:v2'; // v2: SHAQs products (tilapia, pekasam, sayur)
 const uid = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 
 function fresh(): LiveState {
@@ -26,7 +26,7 @@ function fresh(): LiveState {
     anchor: now.toISOString(),
     batches: seedBatches(now),
     orders: [],
-    events: [{ id: uid(), at: now.toISOString(), actor: 'System', action: "Today's harvest batches loaded (190 kg across 3 species)" }],
+    events: [{ id: uid(), at: now.toISOString(), actor: 'System', action: "Today's harvest loaded: fresh tilapia, pekasam and aquaponic vegetables" }],
   };
 }
 
@@ -74,8 +74,8 @@ export const onRemoteChange = (h: RemoteHook) => { remoteHooks.add(h); return ()
 
 export const remaining = (b: FishBatch) => Math.max(0, b.harvestedKg - b.allocatedKg);
 
-export function surgeContext(s: LiveState, species: Species[] = []): SurgeContext {
-  const pool = s.batches.filter((b) => !species.length || species.includes(b.species));
+export function surgeContext(s: LiveState, product: Product[] = []): SurgeContext {
+  const pool = s.batches.filter((b) => !product.length || product.includes(b.product));
   const harvested = pool.reduce((t, b) => t + b.harvestedKg, 0);
   const allocated = pool.reduce((t, b) => t + b.allocatedKg, 0);
   return {
@@ -97,8 +97,11 @@ export function placeOrder(stallId: number, lines: OrderLine[], mode: DeliveryMo
     if (!b) throw new Error('A batch in your cart is no longer available');
     if (kg > remaining(b)) throw new Error(`Only ${remaining(b)} kg left of ${b.id}`);
   }
-  // Charge the farm's current rate, not the rate when the line went into the cart.
-  lines = lines.map((l) => ({ ...l, pricePerKg: state.batches.find((b) => b.id === l.batchId)!.basePrice }));
+  // Charge the farm's current rate, and take product and processing from the batch, not from the cart.
+  lines = lines.map((l) => {
+    const b = state.batches.find((x) => x.id === l.batchId)!;
+    return { ...l, product: b.product, pricePerKg: b.basePrice, prep: PRODUCTS[b.product].fresh ? l.prep : NO_PREP };
+  });
   const now = new Date();
   const order: Order = {
     id: `SM-${now.toISOString().slice(2, 10).replace(/-/g, '')}-${uid().slice(0, 4)}`,
@@ -107,7 +110,7 @@ export function placeOrder(stallId: number, lines: OrderLine[], mode: DeliveryMo
     deliverBy: deliverBy.toISOString(),
     mode,
     lines,
-    price: quote(lines, mode, surgeContext(state, lines.map((l) => l.species))),
+    price: quote(lines, mode, surgeContext(state, lines.map((l) => l.product))),
     stage: 'harvesting',
     stageAt: { harvesting: now.toISOString() },
   };
@@ -151,7 +154,7 @@ export function addBatch(b: Omit<FishBatch, 'id' | 'allocatedKg' | 'harvestedAt'
   if (!(b.harvestedKg > 0) || !(b.basePrice > 0)) throw new Error('Weight and price must be above zero');
   const now = new Date();
   const batch: FishBatch = { ...b, id: `B-${now.toISOString().slice(2, 10).replace(/-/g, '')}-${uid().slice(0, 3)}`, allocatedKg: 0, harvestedAt: now.toISOString() };
-  commit({ ...state, batches: [batch, ...state.batches], events: [event('Farm & Harvest', `New harvest ${batch.id}: ${b.harvestedKg} kg ${b.species} @ RM ${b.basePrice.toFixed(2)}/kg`), ...state.events] });
+  commit({ ...state, batches: [batch, ...state.batches], events: [event('Farm & Harvest', `New harvest ${batch.id}: ${b.harvestedKg} kg ${b.product} @ RM ${b.basePrice.toFixed(2)}/kg`), ...state.events] });
 }
 
 export function setBasePrice(id: string, price: number) {
