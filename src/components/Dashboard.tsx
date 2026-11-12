@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity as ActivityIcon, BadgeCheck, Clock, Gauge, HandCoins, LayoutDashboard, Leaf, Radio, ScrollText, Store, Timer, Users, Weight, Wallet } from 'lucide-react';
+import { Activity as ActivityIcon, BadgeCheck, Clock, Gauge, HandCoins, LayoutDashboard, Leaf, Pencil, Radio, ScrollText, Store, Timer, Users, Weight, Wallet } from 'lucide-react';
 import type { Order, Product } from '../types';
 import { PRODUCTS, STALLS } from '../mockData';
 import { getHistory, remaining, useLive } from '../store';
+import { isEdited, resetCafe, saveCafe } from '../cafes';
 import { tr as t } from '../i18n';
-import { Card, CountUp, StageBadge, StageTrack, Stat, Tabs, cx, date, kg, orderKg, rm, rm0, time } from './ui';
+import { Button, Card, CountUp, StageBadge, StageTrack, Stat, Tabs, cx, date, kg, orderKg, rm, rm0, time, toast } from './ui';
 
 export function DashboardView() {
   const [tab, setTab] = useState('overview');
@@ -171,7 +172,38 @@ function Live() {
   );
 }
 
+const field = 'mt-1 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-ink';
+
+/** Admin-only form to rename a cafe. */
+function CafeEditor({ id, name, cuisine, owner, onClose }: { id: number; name: string; cuisine: string; owner: string; onClose: () => void }) {
+  const [f, setF] = useState({ name, cuisine, owner });
+  const [error, setError] = useState('');
+  return (
+    <motion.form initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-3 space-y-2 overflow-hidden border-t border-slate-200 pt-3 text-sm"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!f.name.trim()) return setError(t('d.nameRequired'));
+        saveCafe(id, f);
+        toast(t('d.saved'));
+        onClose();
+      }}>
+      {(['name', 'cuisine', 'owner'] as const).map((k) => (
+        <label key={k} className="block"><span className="text-slate-700">{t(k === 'name' ? 'd.cafeName' : k === 'cuisine' ? 'd.cuisine' : 'd.owner')}</span>
+          <input required={k === 'name'} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} className={field} /></label>
+      ))}
+      {error && <p className="text-rose-600" role="alert">{error}</p>}
+      <p className="text-xs text-slate-500">{t('d.localNote')}</p>
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit">{t('d.save')}</Button>
+        <Button variant="ghost" onClick={onClose}>{t('d.cancel')}</Button>
+        {isEdited(id) && <Button variant="ghost" onClick={() => { resetCafe(id); onClose(); }}>{t('d.reset')}</Button>}
+      </div>
+    </motion.form>
+  );
+}
+
 function Stalls() {
+  const [editing, setEditing] = useState<number | null>(null);
   const all = useAllDelivered();
   const rows = STALLS.map((s) => {
     const os = all.filter((o) => o.stallId === s.id);
@@ -185,7 +217,10 @@ function Stalls() {
         <Card key={s.id} i={i} className="p-3 md:p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="min-w-0">
-              <p className="truncate font-semibold text-ink">#{s.id} {s.name}</p>
+              <p className="flex items-center gap-1 font-semibold text-ink">
+                <span className="truncate">#{s.id} {s.name}</span>
+                <button onClick={() => setEditing(editing === s.id ? null : s.id)} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-ink" aria-label={t('d.editCafe', { name: s.name })} title={t('d.edit')}><Pencil size={15} /></button>
+              </p>
               <p className="text-xs text-slate-600">{s.cuisine} · {s.owner}</p>
             </div>
             {n ? (
@@ -196,6 +231,7 @@ function Stalls() {
             ) : <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">{t('d.noPurchases')}</span>}
           </div>
           {!!n && <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200"><motion.div className={cx('h-full', s.tier === 'core' ? 'bg-fresh' : 'bg-electric')} initial={{ width: 0 }} animate={{ width: `${(k / maxKg) * 100}%` }} transition={{ duration: 0.8, delay: 0.2 + i * 0.04 }} /></div>}
+          {editing === s.id && <CafeEditor id={s.id} name={s.name} cuisine={s.cuisine} owner={s.owner} onClose={() => setEditing(null)} />}
         </Card>
       ))}
     </div>

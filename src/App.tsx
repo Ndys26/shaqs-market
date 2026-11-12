@@ -6,6 +6,7 @@ import type { Persona, Role, Session } from './types';
 import { onRemoteChange, resetToday, stageLabel } from './store';
 import { audio, setSoundEnabled } from './audioService';
 import { STALLS, stallById } from './mockData';
+import { useCafes } from './cafes';
 import { tr as t, useLang, type Key } from './i18n';
 import { AuthScreen } from './components/Auth';
 import { VendorView } from './components/Vendor';
@@ -60,6 +61,7 @@ function Launch({ onDone }: { onDone: () => void }) {
 
 export default function App() {
   useLang(); // re-render everything when EN/BM changes
+  useCafes(); // and when admin edits a cafe
   const reduce = useReducedMotion();
   const [launching, setLaunching] = useState(() => !reduce);
   const [ui, setUi] = useState<Ui>(loadUi);
