@@ -25,26 +25,38 @@ export async function hashPassword(password: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-const STALL_HASHES = [
-  '99782c6fcf9e3650f83002774f7b546e11d054ffedd0035c5f9c969366ab900a',
-  'caa9ab3d46fe4b5eb74038f1571d52a5a8adde7517aecd3292ebe85a1adf5dfa',
-  'c9e0227af8c2b490ec313685a3fa81a50fe890a72a4269de8aa5206f1e3858e3',
-  '554206b6c71decc0131b8574864deaa1aa65973ed596880ec550a4f3ae52c57b',
-  'ad6d97c34369c97b9b6cc822a6174f3af09dfbe09e13ec735a37c5970c07f932',
-  '99a78c20b83e882a070a75ffedf7fa850784f42c69b6d781524d0daca1cf3095',
-  '8213c82b0ede0ccfbf7e1797c381a941ffdfbb930aea3775ccfd03eb35d8d921',
-  '1cf63254174d09f1d8e318c9c14b2fb083d9c75649c2c98f4f24467509e8dc46',
-  '9d126dae851109b1109c3c121869365bf3c4934ae8045cc114573649433209bf',
-  '50914ef76088aa4c3e523df5e561e224ee3125ea1dc3c24f232898972fc786e5',
-  'fabe9c5d45f6694600871427bdf00fcc7079e2829a89efeb8b7189b1d99cdd8f',
+// Password hashes for kafe01 … kafe11.
+const CAFE_HASHES = [
+  '0cf8e497a13b42d85f3c2a1b5373dcb1e23008d11320258959db554528961d30',
+  'ff13e604faca84ba497d84cb3eb72fb97315bd35e68366322fb3d5dafa80372f',
+  '8b9b0ff3c55a59ffa13d17be422499676756265259be8ae2e843341e7ffea6f7',
+  'c7e1b3a6e3de3700b3ddff57e031abe73b852fe54df418fb0c2e5bc62fb1ed71',
+  '2fac92bf03d378ad963490d2f0c705c9b327e02413910daed1679186eb9ba681',
+  '316c51d587de0cd47a6231f0ba200db325f3b02842ab4862587339188a03978b',
+  'a9d564064f14d919d2fac5f8b5c2da7f48da35c68df205ae082f4e53093d7060',
+  'a937ebfd1f0b2b9e2e1adaa3744d3e83153cf36bf9a4759f8b8e35ea76883f90',
+  'b15be978ba04639560bf736283e07d528169b997ba260aa2b73869b46ef29760',
+  '4070b95ab3f452a0b8b37a940628115f9985ba3a1724cd84194b7a4ac7c06383',
+  '87d3d86a2f162f165679ae6723c67efbe34ad3058ab6fc433d739394e0f05e1b',
+];
+
+// Telaga Batin aquaponic participants (Laporan Fasa 3). Short names only: no surname, IC, phone or address.
+// shortcut: all farm logins share one password; give each participant their own before real use.
+const FARM_HASH = '276588efbeca7a90b92cb49143f68a50874b36952fd90331e9a0de4cdb4f9867';
+const PARTICIPANTS: [username: string, name: string][] = [
+  ['lukman', 'Mohd Lukman'], ['faariza', 'Nurul Faariza'], ['suzana', 'Suzana'], ['sofiyuddib', 'Muhammad Sofiyuddib'],
+  ['zawiyah', 'Zawiyah'], ['mohdnor', 'Mohd Nor'], ['tahar', 'Mohammad Tahar'], ['aisyah', 'Aisyah'],
+  ['aklima', 'Aklima'], ['arif', 'Mohd Arif'], ['amirulhazim', 'Mohd Amirul Hazim'], ['fatimah', 'Tn Fatimah'],
+  ['zalekha', 'Zalekha'], ['abusyawal', 'Abu Syawal'], ['nurlinda', 'Nur Linda'], ['khairol', 'Mohd Khairol Adha'],
+  ['afandi', 'Mohd Afandi'], ['sahla', 'Nur Sahla Zahra'], ['tahirah', 'Tahirah'], ['norzuraini', 'Norzuraini'],
 ];
 
 const BUILT_IN: Account[] = [
   { username: 'admin', email: `admin@${DOMAIN}`, passwordHash: '87d82c0eed71d1c45a67fe2c303da689505f9aa6c91b417f6fb97396a2cf7859', session: { role: 'admin', name: 'SHAQs Market Admin', method: 'password', stallId: 4 } },
-  { username: 'ladang', email: `ladang@${DOMAIN}`, passwordHash: '276588efbeca7a90b92cb49143f68a50874b36952fd90331e9a0de4cdb4f9867', session: { role: 'farm', name: 'Ladang Akuaponik Telaga Batin', method: 'password', stallId: 4 } },
+  ...PARTICIPANTS.map(([username, name]) => ({ username, email: `${username}@${DOMAIN}`, passwordHash: FARM_HASH, session: { role: 'farm' as const, name, method: 'password' as const, stallId: 4 } })),
   ...STALLS.map((s, i) => {
     const n = String(s.id).padStart(2, '0');
-    return { username: `gerai${n}`, email: `gerai${n}@${DOMAIN}`, passwordHash: STALL_HASHES[i], session: { role: 'cafe' as const, name: s.owner, method: 'password' as const, stallId: s.id } };
+    return { username: `kafe${n}`, email: `kafe${n}@${DOMAIN}`, passwordHash: CAFE_HASHES[i], session: { role: 'cafe' as const, name: s.owner, method: 'password' as const, stallId: s.id } };
   }),
 ];
 

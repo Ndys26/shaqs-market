@@ -13,7 +13,6 @@ export interface Stall {
   name: string;
   cuisine: string;
   owner: string;
-  license: string;
   tier: StallTier;
   prefers: Product[];
 }

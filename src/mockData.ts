@@ -11,17 +11,17 @@ export const PRODUCTS: Record<Product, { label: string; local: string; color: st
 
 // 5 core buyers, 3 occasional, 3 that rarely or never buy (drinks, pastry, roti).
 export const STALLS: Stall[] = [
-  { id: 1, name: 'Nasi Melayu Mak Teh', cuisine: 'Nasi Melayu', owner: 'Puan Rohani', license: 'PBT-KF-0101', tier: 'core', prefers: ['tilapia', 'pekasam', 'sayur'] },
-  { id: 2, name: 'Nasi Campur Selera Kita', cuisine: 'Nasi Campur', owner: 'Encik Faizal', license: 'PBT-KF-0102', tier: 'core', prefers: ['tilapia', 'sayur'] },
-  { id: 3, name: 'Mee & Kuey Teow Abang Li', cuisine: 'Mi & Kuey Teow', owner: 'Encik Ali', license: 'PBT-KF-0103', tier: 'occasional', prefers: ['sayur'] },
-  { id: 4, name: 'Asam Pedas & Ikan Bakar Kak Yah', cuisine: 'Asam Pedas & Ikan Bakar', owner: 'Puan Zakiah', license: 'PBT-KF-0104', tier: 'core', prefers: ['tilapia', 'pekasam'] },
-  { id: 5, name: 'Roti Canai Bistro', cuisine: 'Roti Canai & Kopi', owner: 'Encik Rajesh', license: 'PBT-KF-0105', tier: 'rare', prefers: ['tilapia'] },
-  { id: 6, name: 'Nasi Ayam Hainan', cuisine: 'Nasi Ayam', owner: 'Encik Wong', license: 'PBT-KF-0106', tier: 'occasional', prefers: ['sayur'] },
-  { id: 7, name: 'Sup & Tomyam Pak Su', cuisine: 'Sup & Tomyam', owner: 'Encik Sulaiman', license: 'PBT-KF-0107', tier: 'core', prefers: ['tilapia', 'sayur'] },
-  { id: 8, name: 'Dapur Thai Selatan', cuisine: 'Masakan Thai', owner: 'Puan Nok', license: 'PBT-KF-0108', tier: 'occasional', prefers: ['tilapia', 'sayur'] },
-  { id: 9, name: 'Jus & Minuman Segar', cuisine: 'Minuman & Jus', owner: 'Cik Aina', license: 'PBT-KF-0109', tier: 'rare', prefers: [] },
-  { id: 10, name: 'Kuih & Pastri Nenek', cuisine: 'Kuih & Pastri', owner: 'Puan Habsah', license: 'PBT-KF-0110', tier: 'rare', prefers: [] },
-  { id: 11, name: 'Western Seafood Corner', cuisine: 'Fish & Chips', owner: 'Encik Daniel', license: 'PBT-KF-0111', tier: 'core', prefers: ['tilapia'] },
+  { id: 1, name: 'Kafe Selera Kampung', cuisine: 'Nasi Melayu', owner: 'Puan Rohani', tier: 'core', prefers: ['tilapia', 'pekasam', 'sayur'] },
+  { id: 2, name: 'Kafe Seri Pantai', cuisine: 'Nasi Campur', owner: 'Encik Faizal', tier: 'core', prefers: ['tilapia', 'sayur'] },
+  { id: 3, name: 'Kafe Mi Sedap', cuisine: 'Mi & Kuey Teow', owner: 'Encik Ali', tier: 'occasional', prefers: ['sayur'] },
+  { id: 4, name: 'Kafe Asam Pedas Warisan', cuisine: 'Asam Pedas & Ikan Bakar', owner: 'Puan Zakiah', tier: 'core', prefers: ['tilapia', 'pekasam'] },
+  { id: 5, name: 'Kafe Roti & Kopi Pagi', cuisine: 'Roti Canai & Kopi', owner: 'Encik Rajesh', tier: 'rare', prefers: ['tilapia'] },
+  { id: 6, name: 'Kafe Nasi Ayam Mesra', cuisine: 'Nasi Ayam', owner: 'Encik Wong', tier: 'occasional', prefers: ['sayur'] },
+  { id: 7, name: 'Kafe Sup & Tomyam Bayu', cuisine: 'Sup & Tomyam', owner: 'Encik Sulaiman', tier: 'core', prefers: ['tilapia', 'sayur'] },
+  { id: 8, name: 'Kafe Rasa Thai', cuisine: 'Masakan Thai', owner: 'Puan Nok', tier: 'occasional', prefers: ['tilapia', 'sayur'] },
+  { id: 9, name: 'Kafe Jus Segar', cuisine: 'Minuman & Jus', owner: 'Cik Aina', tier: 'rare', prefers: [] },
+  { id: 10, name: 'Kafe Kuih Tradisi', cuisine: 'Kuih & Pastri', owner: 'Puan Habsah', tier: 'rare', prefers: [] },
+  { id: 11, name: 'Kafe Fish & Chips Ombak', cuisine: 'Fish & Chips', owner: 'Encik Daniel', tier: 'core', prefers: ['tilapia'] },
 ];
 
 export const stallById = (id: number) => STALLS.find((s) => s.id === id)!;

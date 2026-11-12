@@ -26,11 +26,13 @@ Sign in with the email or the user ID. Passwords are kept by the SHAQs team, not
 | Role | User ID | Email | Sees |
 | --- | --- | --- | --- |
 | Admin (SHAQs Market) | `admin` | `admin@shaqsmarket.my` | Dashboard, Farm and Cafe screens |
-| Farm | `ladang` | `ladang@shaqsmarket.my` | Harvest log and order queue |
-| Cafe stall 1–11 | `gerai01` … `gerai11` | `gerai01@shaqsmarket.my` … `gerai11@shaqsmarket.my` | Ordering for that stall |
+| Farm (Telaga Batin participants) | `lukman`, `suzana`, `afandi` … (20 people) | `lukman@shaqsmarket.my` … | Harvest log and order queue |
+| Cafe 1–11 | `kafe01` … `kafe11` | `kafe01@shaqsmarket.my` … `kafe11@shaqsmarket.my` | Ordering for that cafe |
 
-New stalls can register from the sign-in page. Those accounts are saved in that browser only.
+New cafes can register from the sign-in page. Those accounts are saved in that browser only.
 Emails are sign-in names only: no mail is sent.
+Farm logins use the participants' short names from Laporan Fasa 3 (no surname, IC, phone or address).
+Cafe names are placeholders until real buying cafes are confirmed.
 
 To change a password, put the output of `hashPassword('new password')` (`src/accounts.ts`) in place of the old hash.
 

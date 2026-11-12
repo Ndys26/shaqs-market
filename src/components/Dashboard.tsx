@@ -186,7 +186,7 @@ function Stalls() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="min-w-0">
               <p className="truncate font-semibold text-ink">#{s.id} {s.name}</p>
-              <p className="text-xs text-slate-600">{s.cuisine} · {s.license} · {s.owner}</p>
+              <p className="text-xs text-slate-600">{s.cuisine} · {s.owner}</p>
             </div>
             {n ? (
               <div className="tabular text-right text-sm">
