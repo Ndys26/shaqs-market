@@ -43,7 +43,7 @@ function loadUi(): Ui {
 function Launch({ onDone }: { onDone: () => void }) {
   useEffect(() => { const id = setTimeout(onDone, 1500); return () => clearTimeout(id); }, [onDone]);
   return (
-    <motion.div className="fixed inset-0 z-[60] grid place-items-center bg-[#f6f8f4]" exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+    <motion.div className="fixed inset-0 z-[60] grid place-items-center bg-white" exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
       <div className="flex flex-col items-center">
         <div className="relative grid h-32 w-32 place-items-center">
           <motion.span className="absolute inset-0 rounded-full border-2 border-leaf" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: [0.6, 1.15, 1], opacity: [0, 0.8, 0] }} transition={{ duration: 1.3, ease: 'easeOut' }} />
