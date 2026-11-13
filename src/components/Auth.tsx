@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { KeyRound, Loader2, Store } from 'lucide-react';
 import type { Session } from '../types';
-import { STALLS } from '../mockData';
 import { registerStall, signIn } from '../accounts';
 import { tr as t, type Key } from '../i18n';
 import { Button, LangToggle } from './ui';
@@ -12,7 +11,7 @@ const input = 'mt-1 min-h-11 w-full rounded-xl border border-slate-300 bg-white 
 export function AuthScreen({ onDone }: { onDone: (s: Session) => void }) {
   const [view, setView] = useState<'login' | 'register'>('login');
   const [cred, setCred] = useState({ id: '', password: '' });
-  const [reg, setReg] = useState({ stallId: 1, name: '', email: '', phone: '', password: '', confirm: '' });
+  const [reg, setReg] = useState({ cafeName: '', cuisine: '', name: '', email: '', phone: '', password: '', confirm: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -65,13 +64,9 @@ export function AuthScreen({ onDone }: { onDone: (s: Session) => void }) {
                 void run(() => registerStall(reg), t('auth.fail'));
               }}>
               <h2 className="flex items-center gap-2 text-lg font-bold text-ink"><Store size={18} aria-hidden />{t('auth.registerTitle')}</h2>
-              <label className="block text-sm"><span className="text-slate-700">{t('auth.stall')}</span>
-                <select value={reg.stallId} onChange={(e) => setReg({ ...reg, stallId: Number(e.target.value) })} className={input}>
-                  {STALLS.map((s) => <option key={s.id} value={s.id}>#{s.id} {s.name} ({s.cuisine})</option>)}
-                </select></label>
-              {([['name', 'auth.owner', 'text', 'name'], ['email', 'auth.email', 'email', 'email'], ['phone', 'auth.phone', 'tel', 'tel'], ['password', 'auth.newPw', 'password', 'new-password'], ['confirm', 'auth.confirm', 'password', 'new-password']] as const).map(([k, label, type, ac]) => (
+              {([['cafeName', 'auth.stall', 'text', 'organization'], ['cuisine', 'd.cuisine', 'text', 'off'], ['name', 'auth.owner', 'text', 'name'], ['email', 'auth.email', 'email', 'email'], ['phone', 'auth.phone', 'tel', 'tel'], ['password', 'auth.newPw', 'password', 'new-password'], ['confirm', 'auth.confirm', 'password', 'new-password']] as const).map(([k, label, type, ac]) => (
                 <label key={k} className="block text-sm"><span className="text-slate-700">{t(label as Key)}</span>
-                  <input required={k !== 'phone'} minLength={k === 'password' ? 8 : undefined} type={type} autoComplete={ac} value={reg[k]} onChange={(e) => setReg({ ...reg, [k]: e.target.value })} className={input} /></label>
+                  <input required={k !== 'phone' && k !== 'cuisine'} minLength={k === 'password' ? 8 : undefined} type={type} autoComplete={ac} value={reg[k]} onChange={(e) => setReg({ ...reg, [k]: e.target.value })} className={input} /></label>
               ))}
               {error && <p className="text-sm text-rose-600" role="alert">{error}</p>}
               <div className="flex gap-2 pt-1">

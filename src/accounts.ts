@@ -1,13 +1,14 @@
 import type { Session } from './types';
 import { STALLS } from './mockData';
 import { tr } from './i18n';
+import { addCafe } from './cafes';
 
 /**
  * Accounts and sign-in.
  * Passwords are stored only as salted SHA-256 hashes, never as plain text.
  * shortcut: checks run in the browser of a static site, so a determined person can bypass them;
  * move sign-in to a backend (Supabase or Firebase Auth) before handling real money or personal data.
- * New stall registrations are saved in this browser only.
+ * New cafe registrations are saved in this browser only.
  */
 export interface Account {
   username: string;
@@ -54,7 +55,7 @@ const PARTICIPANTS: [username: string, name: string][] = [
 const BUILT_IN: Account[] = [
   { username: 'admin', email: `admin@${DOMAIN}`, passwordHash: '87d82c0eed71d1c45a67fe2c303da689505f9aa6c91b417f6fb97396a2cf7859', session: { role: 'admin', name: 'SHAQs Market Admin', method: 'password', stallId: 4 } },
   ...PARTICIPANTS.map(([username, name]) => ({ username, email: `${username}@${DOMAIN}`, passwordHash: FARM_HASH, session: { role: 'farm' as const, name, method: 'password' as const, stallId: 4 } })),
-  ...STALLS.map((s, i) => {
+  ...STALLS.slice(0, CAFE_HASHES.length).map((s, i) => {
     const n = String(s.id).padStart(2, '0');
     return { username: `kafe${n}`, email: `kafe${n}@${DOMAIN}`, passwordHash: CAFE_HASHES[i], session: { role: 'cafe' as const, name: s.owner, method: 'password' as const, stallId: s.id } };
   }),
@@ -78,19 +79,20 @@ export async function signIn(id: string, password: string): Promise<Session | nu
   return acc.passwordHash === (await hashPassword(password)) ? acc.session : null;
 }
 
-export async function registerStall(f: { stallId: number; name: string; email: string; password: string }): Promise<Session> {
+export async function registerStall(f: { cafeName: string; cuisine: string; name: string; email: string; password: string }): Promise<Session> {
   const email = f.email.trim().toLowerCase();
   if (!f.name.trim()) throw new Error(tr('err.name'));
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(tr('err.email'));
   if (f.password.length < 8) throw new Error(tr('err.pwLen'));
-  if (!STALLS.some((s) => s.id === f.stallId)) throw new Error(tr('err.stall'));
+  if (!f.cafeName.trim()) throw new Error(tr('err.stall'));
   if (allAccounts().some((a) => a.email === email || a.username === email)) throw new Error(tr('err.taken'));
-  const session: Session = { role: 'cafe', name: f.name.trim(), method: 'register', stallId: f.stallId };
-  const acc: Account = { username: email, email, passwordHash: await hashPassword(f.password), session };
+  const passwordHash = await hashPassword(f.password);
   try {
-    localStorage.setItem(REG_KEY, JSON.stringify([...registered(), acc]));
+    const stallId = addCafe({ name: f.cafeName, cuisine: f.cuisine, owner: f.name });
+    const session: Session = { role: 'cafe', name: f.name.trim(), method: 'register', stallId };
+    localStorage.setItem(REG_KEY, JSON.stringify([...registered(), { username: email, email, passwordHash, session }]));
+    return session;
   } catch {
     throw new Error(tr('err.storage'));
   }
-  return session;
 }

@@ -29,7 +29,7 @@ Sign in with the email or the user ID. Passwords are kept by the SHAQs team, not
 | Farm (Telaga Batin participants) | `lukman`, `suzana`, `afandi` … (20 people) | `lukman@shaqsmarket.my` … | Harvest log and order queue |
 | Cafe 1–11 | `kafe01` … `kafe11` | `kafe01@shaqsmarket.my` … `kafe11@shaqsmarket.my` | Ordering for that cafe |
 
-New cafes can register from the sign-in page. Those accounts are saved in that browser only.
+New cafes can register from the sign-in page and type their own cafe name. The new cafe and its account are saved in that browser only.
 Emails are sign-in names only: no mail is sent.
 Farm logins use the participants' short names from Laporan Fasa 3 (no surname, IC, phone or address).
 Cafe names are placeholders until real buying cafes are confirmed.
